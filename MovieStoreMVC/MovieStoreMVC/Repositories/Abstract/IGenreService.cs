@@ -1,11 +1,15 @@
-﻿using MovieStoreMVC.Models.DTO;
+﻿using MovieStoreMVC.Models.Domain;
+using MovieStoreMVC.Models.DTO;
 
 namespace MovieStoreMVC.Repositories.Abstract
 {
-    public interface IUserAuthenticationService
+    public interface IGenreService
     {
-        Task<Status> LoginAsync(LoginModel model);
-        Task<Status> RegistrationAsync(RegistrationModel model);
-        Task LogoutAsync();
+        bool Add(Genre model);
+        bool Update(Genre model);
+        Genre GetById(int id);
+        bool Delete(int id);
+        IQueryable<Genre> List();
+
     }
 }

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MovieStoreMVC.Models.Domain;
 using MovieStoreMVC.Repositories.Abstract;
 
 namespace MovieStoreMVC.Controllers
 {
+    [Authorize]
     public class GenreController : Controller
     {
         private readonly IGenreService _genreService;
@@ -36,8 +38,47 @@ namespace MovieStoreMVC.Controllers
             else
             {
                 TempData["msg"] = "Failed Add Genre / Error on server side";
+                return View(model);
+            }
+        }
+
+
+        public IActionResult Edit(int id)
+        {
+            var model = _genreService.GetById(id);
+            return View(model);
+        }
+
+        public IActionResult Update(Genre model) 
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var result = _genreService.Update(model);
+            if (result)
+            {
+                TempData["msg"] = "Updated Successfully";
+                return RedirectToAction(nameof(GenreList));
+            }
+            else
+            {
+                TempData["msg"] = "Error on server side";
                 return View();
             }
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var result = _genreService.Delete(id);
+            return RedirectToAction(nameof(GenreList));
+        }
+
+        public IActionResult GenreList()
+        {
+            var data = this._genreService.List().ToList();
+            return View(data);
         }
     }
 }
