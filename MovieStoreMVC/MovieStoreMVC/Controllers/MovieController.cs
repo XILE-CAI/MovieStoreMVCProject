@@ -41,7 +41,7 @@ namespace MovieStoreMVC.Controllers
                     return View(model);
                 }
                 var imageName = fileReult.Item2;
-                model.MovieImage = "img";
+                model.MovieImage = imageName;
             }
             var result = _movieService.Add(model);
             if (result)
