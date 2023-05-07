@@ -60,6 +60,13 @@ namespace MovieStoreMVC.Repositories.Implementation
                 {
                     return false;
                 };
+
+                var movieGenres = context.MovieGenre.Where(a => a.MovieId == model.Id);
+                foreach (var item in movieGenres)
+                {
+                    context.MovieGenre.Remove(item);
+                }
+
                 context.Movie.Remove(model);
                 context.SaveChanges();
                 return true;
@@ -75,13 +82,39 @@ namespace MovieStoreMVC.Repositories.Implementation
             return context.Movie.Find(id);
         }
 
-        public MovieListVM List()
+
+        public MovieListVM List(string term="", bool paging=false, int currentPage = 0)
         {
-            var data = context.Movie.AsQueryable();
-            var list = new MovieListVM
+
+            var list = new MovieListVM();
+
+            var data = context.Movie.ToList();
+
+            if (!string.IsNullOrEmpty(term))
             {
-                MovieList = data
-            };
+                term = term.ToLower();
+                data = data.Where(a => a.Title.ToLower().StartsWith(term)).ToList();
+            }
+
+            if (paging == true)
+            {
+                int pageSize = 5;
+                int count = data.Count;
+                int TotalPages = (int)Math.Ceiling(count /(double)pageSize);
+                data = data.Skip(currentPage-1).Take(pageSize).ToList();
+                list.PageSize = pageSize;
+                list.CurrentPage = currentPage;
+                list.TotalPages = TotalPages;
+            }
+
+            foreach (var movie in data)
+            {
+                var genres = (from genre in context.Genre join mg in context.MovieGenre on genre.Id equals mg.GenreId where mg.MovieId == movie.Id select genre.GenreName).ToList();
+                var genreNames = string.Join(",",genres);
+                movie.GenreNames = genreNames;
+            }
+
+            list.MovieList = data.AsQueryable();
             return list;
         }
     }
